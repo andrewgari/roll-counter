@@ -7,4 +7,5 @@ const (
 	SUCCESS
 	FAILURE
 	FUMBLE
+	UNKNOWN
 )
