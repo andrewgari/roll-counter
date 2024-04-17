@@ -50,7 +50,7 @@ func parseMessage(message string) (types.ChatMessage, error) {
 
 	var date = matches[1]
 	var time = matches[2]
-	var name = matches[7]
+	var name = types.GetPlayerName(matches[7])
 
 	var msg = types.ChatMessage{
 		PlayerName: name,

@@ -24,23 +24,27 @@ func readText() {
 		mapOfRolls[message.ChatMessage.PlayerName] = count + 1
 	}
 
-	dieRolls := 0
-	modRolls := 0
+	//dieRolls := 0
+	//modRolls := 0
 
+	//partyMessages := parser.FormatMessages(chatMessages)
 	partyMessages := parser.FormatMessages(chatMessages)
-	for _, message := range partyMessages.AineRolls {
-		dieRolls += message.DieRoll
-		modRolls += message.ModRoll
-		fmt.Printf("\nName: %s\nrawRoll: %d\nmodifiedRoll: %d\n======================================",
-			message.ChatMessage.PlayerName,
-			message.DieRoll,
-			message.ModRoll,
-		)
-	}
+	fmt.Println(partyMessages)
+	//for _, value := range partyMessages {
+	//	for _, message := range value.Messages {
+	//		fmt.Printf("%s had an average roll of %s", message.PlayerName, value.GetDiceAverage())
+	//	}
+	//}
 
-	avgDieRoll := float64(dieRolls) / float64(len(partyMessages.AineRolls))
-	aveModRoll := float64(modRolls) / float64(len(partyMessages.AineRolls))
+	//for _, message := range partyMessages.AineRolls {
+	//	dieRolls += message.DieRoll
+	//	modRolls += message.ModRoll
+	//}
+	//
+	//avgDieRoll := float64(dieRolls) / float64(len(partyMessages.AineRolls))
+	//aveModRoll := float64(modRolls) / float64(len(partyMessages.AineRolls))F
 
-	fmt.Printf("Aine has an average die roll of %f and an average weighted roll of %f", avgDieRoll, aveModRoll)
+	//fmt.Printf("Aine has an average die roll of %f and an average weighted roll of %f", avgDieRoll, aveModRoll)
+	fmt.Println("Done")
 
 }
