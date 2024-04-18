@@ -2,8 +2,8 @@ package parser
 
 import (
 	"errors"
-	"fmt"
 	"github.com/andrewgari/roll-counter/internal/types"
+	"math"
 	"os"
 	"regexp"
 	"strconv"
@@ -34,7 +34,6 @@ func ReadFile(system types.GameSystem, fileName string) []types.RollMessage {
 		if err != nil {
 			continue
 		}
-		fmt.Println(rollMessage)
 		chatMessages = append(chatMessages, rollMessage)
 	}
 	return chatMessages
@@ -63,19 +62,23 @@ func parseMessage(message string) (types.ChatMessage, error) {
 }
 
 func parseRollMessage(message *types.ChatMessage) (types.RollMessage, error) {
+	if message == nil {
+		panic("message is nil")
+	}
 	var rollMessage = types.RollMessage{}
 	rollMessage.ChatMessage = message
 
 	dieRoll, err := parseDieRoll(message.Message)
 	if err != nil {
-		fmt.Println("oops")
 		return types.RollMessage{}, err
+	}
+	if dieRoll != math.Trunc(dieRoll) {
+		return types.RollMessage{}, errors.New("die roll is not a whole number")
 	}
 	rollMessage.DieRoll = dieRoll
 
 	modRoll, err := parseModRoll(message.Message)
 	if err != nil {
-		fmt.Println("oops")
 		return types.RollMessage{}, err
 	}
 	rollMessage.ModRoll = modRoll
@@ -89,7 +92,7 @@ func parseRollMessage(message *types.ChatMessage) (types.RollMessage, error) {
 	return rollMessage, nil
 }
 
-func parseDieRoll(message string) (int, error) {
+func parseDieRoll(message string) (float64, error) {
 	regex := regexp.MustCompile(terseRoll5e)
 	matches := regex.FindStringSubmatch(message)
 	if matches == nil {
@@ -101,10 +104,10 @@ func parseDieRoll(message string) (int, error) {
 		return -1, errors.New("not a roll message")
 	}
 
-	return strconv.Atoi(matches[2])
+	return strconv.ParseFloat(matches[2], 64)
 }
 
-func parseModRoll(message string) (int, error) {
+func parseModRoll(message string) (float64, error) {
 	regex := regexp.MustCompile(terseRoll5e)
 	matches := regex.FindStringSubmatch(message)
 	if matches == nil {
@@ -116,14 +119,14 @@ func parseModRoll(message string) (int, error) {
 		return -1, errors.New("not a roll message")
 	}
 
-	return strconv.Atoi(matches[3])
+	return strconv.ParseFloat(matches[3], 64)
 }
 
-func parseRollResult(dieRoll int, message string) types.RollResult {
+func parseRollResult(dieRoll float64, message string) types.RollResult {
 	if dieRoll == 20 {
 		return types.CRITICAL
 	}
-	if dieRoll == -1 {
+	if dieRoll == 1 {
 		return types.FUMBLE
 	}
 
@@ -131,6 +134,12 @@ func parseRollResult(dieRoll int, message string) types.RollResult {
 	matches := regex.FindStringSubmatch(message)
 
 	if matches == nil {
+		if dieRoll > 10 {
+			return types.SUCCESS
+		}
+		if dieRoll <= 10 {
+			return types.FAILURE
+		}
 		return types.UNKNOWN
 	}
 

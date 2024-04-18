@@ -14,8 +14,8 @@ func (cm ChatMessage) GetPlayerName() {
 
 type RollMessage struct {
 	*ChatMessage
-	DieRoll  int
-	ModRoll  int
+	DieRoll  float64
+	ModRoll  float64
 	RollType RollType
 	Result   RollResult
 }

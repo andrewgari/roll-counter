@@ -3,111 +3,127 @@ package parser
 import "github.com/andrewgari/roll-counter/internal/types"
 
 type PartyMessages struct {
-	AineRolls   CharacterMessages
-	KintosRolls CharacterMessages
-	TreeRolls   CharacterMessages
-	FunRolls    CharacterMessages
-	ZedRolls    CharacterMessages
-	RoRolls     CharacterMessages
-	GodRolls    CharacterMessages
+	AineRolls   []types.RollMessage
+	KintosRolls []types.RollMessage
+	TreeRolls   []types.RollMessage
+	FunRolls    []types.RollMessage
+	ZedRolls    []types.RollMessage
+	RoRolls     []types.RollMessage
+	GodRolls    []types.RollMessage
 }
 
-type CharacterMessages struct {
-	Messages []types.RollMessage
+func CreatePartyMessages() PartyMessages {
+	var p PartyMessages
+	p.KintosRolls = make([]types.RollMessage, 0)
+	p.AineRolls = make([]types.RollMessage, 0)
+	p.FunRolls = make([]types.RollMessage, 0)
+	p.ZedRolls = make([]types.RollMessage, 0)
+	p.TreeRolls = make([]types.RollMessage, 0)
+	p.RoRolls = make([]types.RollMessage, 0)
+	p.GodRolls = make([]types.RollMessage, 0)
+
+	return p
 }
 
-func (p PartyMessages) addMessage(message types.RollMessage) {
-	switch message.PlayerName {
+func (p *PartyMessages) AddMessage(message types.RollMessage) {
+	switch message.ChatMessage.PlayerName {
 	case types.Kintos:
-		p.KintosRolls.addMessage(message)
+		p.KintosRolls = append(p.KintosRolls, message)
 		break
 	case types.Aine:
-		p.AineRolls.addMessage(message)
+		p.AineRolls = append(p.AineRolls, message)
 		break
 	case types.Fun:
-		p.FunRolls.addMessage(message)
+		p.FunRolls = append(p.FunRolls, message)
 		break
 	case types.Zed:
-		p.ZedRolls.addMessage(message)
+		p.ZedRolls = append(p.ZedRolls, message)
 		break
 	case types.Tree:
-		p.TreeRolls.addMessage(message)
+		p.TreeRolls = append(p.TreeRolls, message)
 		break
 	case types.Rowan:
-		p.RoRolls.addMessage(message)
+		p.RoRolls = append(p.RoRolls, message)
 		break
 	default:
-		p.GodRolls.addMessage(message)
+		p.GodRolls = append(p.GodRolls, message)
 		break
 	}
 }
 
-func (c CharacterMessages) addMessage(message types.RollMessage) {
-	c.Messages = append(c.Messages, message)
+func (p *PartyMessages) getPlayerMessages(name types.PlayerName) []types.RollMessage {
+	switch name {
+	case types.Kintos:
+		return p.KintosRolls
+	case types.Aine:
+		return p.AineRolls
+	case types.Fun:
+		return p.FunRolls
+	case types.Zed:
+		return p.ZedRolls
+	case types.Tree:
+		return p.TreeRolls
+	case types.Rowan:
+		return p.RoRolls
+	default:
+		return p.GodRolls
+	}
 }
 
-func (c CharacterMessages) GetDiceAverage() float64 {
-	dieRolls := 0
-	for _, message := range c.Messages {
+func (p *PartyMessages) GetDiceAverage(name types.PlayerName) float64 {
+	dieRolls := 0.0
+	var messages = p.getPlayerMessages(name)
+	for _, message := range messages {
 		dieRolls += message.DieRoll
 	}
-	return float64(dieRolls) / float64(len(c.Messages))
+	return dieRolls / float64(len(messages))
 }
 
-func (c CharacterMessages) GetModAverage() float64 {
-	dieRolls := 0
-	for _, message := range c.Messages {
+func (p *PartyMessages) GetModAverage(name types.PlayerName) float64 {
+	dieRolls := 0.0
+	var messages = p.getPlayerMessages(name)
+	for _, message := range messages {
 		dieRolls += message.ModRoll
 	}
-	return float64(dieRolls) / float64(len(c.Messages))
+	return dieRolls / float64(len(messages))
 }
 
-func (c CharacterMessages) GetSuccessAverage() int {
-	numOfSuccess := 0
-	for _, message := range c.Messages {
+func getNumOfSuccess(messages []types.RollMessage) float64 {
+	numOfSuccess := 0.0
+	for _, message := range messages {
 		if message.Result == types.SUCCESS || message.Result == types.CRITICAL {
 			numOfSuccess++
 		}
 	}
-	return numOfSuccess / len(c.Messages)
+	return numOfSuccess
 }
 
-func (c CharacterMessages) GetFailureAverage() int {
-	numOfSuccess := 0
-	for _, message := range c.Messages {
-		if message.Result == types.FAILURE || message.Result == types.FUMBLE {
-			numOfSuccess++
-		}
-	}
-	return numOfSuccess / len(c.Messages)
-}
-
-func FormatMessages(messages []types.RollMessage) PartyMessages {
-	var partyMessages PartyMessages
+func getNumOfFailure(messages []types.RollMessage) float64 {
+	numOfFailure := 0.0
 	for _, message := range messages {
-		switch message.PlayerName {
-		case types.Kintos:
-			partyMessages.KintosRolls.addMessage(message)
-			break
-		case types.Aine:
-			partyMessages.AineRolls.addMessage(message)
-			break
-		case types.Tree:
-			partyMessages.TreeRolls.addMessage(message)
-			break
-		case types.Fun:
-			partyMessages.FunRolls.addMessage(message)
-			break
-		case types.Rowan:
-			partyMessages.RoRolls.addMessage(message)
-			break
-		case types.Zed:
-			partyMessages.ZedRolls.addMessage(message)
-			break
-		default:
-			partyMessages.GodRolls.addMessage(message)
-			break
+		if message.Result == types.FAILURE || message.Result == types.FUMBLE {
+			numOfFailure++
 		}
 	}
-	return partyMessages
+	return numOfFailure
+}
+
+func (p *PartyMessages) GetSuccessAverage(name types.PlayerName) float64 {
+	numOfSuccess := getNumOfSuccess(p.getPlayerMessages(name))
+	numOfFailure := getNumOfFailure(p.getPlayerMessages(name))
+
+	if numOfFailure == 0 {
+		return 0
+	}
+
+	return (numOfSuccess / numOfFailure) * 100
+}
+
+func (p *PartyMessages) GetFailureAverage(name types.PlayerName) float64 {
+	numOfSuccess := getNumOfSuccess(p.getPlayerMessages(name))
+	numOfFailure := getNumOfFailure(p.getPlayerMessages(name))
+	if numOfSuccess == 0 {
+		return 0
+	}
+	return (numOfFailure / numOfSuccess) * 1
 }
