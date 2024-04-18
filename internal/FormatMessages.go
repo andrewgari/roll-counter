@@ -70,6 +70,10 @@ func (p *PartyMessages) getPlayerMessages(name types.PlayerName) []types.RollMes
 	}
 }
 
+func (p *PartyMessages) GetMessageCount(name types.PlayerName) int {
+	return len(p.getPlayerMessages(name))
+}
+
 func (p *PartyMessages) GetDiceAverage(name types.PlayerName) float64 {
 	dieRolls := 0.0
 	var messages = p.getPlayerMessages(name)
@@ -116,7 +120,7 @@ func (p *PartyMessages) GetSuccessAverage(name types.PlayerName) float64 {
 		return 0
 	}
 
-	return (numOfSuccess / numOfFailure) * 100
+	return (numOfSuccess / numOfFailure) * 1
 }
 
 func (p *PartyMessages) GetFailureAverage(name types.PlayerName) float64 {

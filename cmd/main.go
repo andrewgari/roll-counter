@@ -12,9 +12,10 @@ func main() {
 
 func readText() {
 
-	dnd5eRolls := parser.ReadFile(types.DND_5e, "assets/dnd5e.log")
-	pathfinderRolls := parser.ReadFile(types.PF2e, "assets/pathfinder.log")
-	var chatMessages = append(dnd5eRolls, pathfinderRolls...)
+	dnd5eRolls := parser.ReadFile(types.DND_5e, "assets/pathfinder.log")
+	//pathfinderRolls := parser.ReadFile(types.PF2e, "assets/pathfinder.log")
+	//var chatMessages = append(dnd5eRolls, pathfinderRolls...)
+	var chatMessages = dnd5eRolls
 
 	var total = 0
 	var playerRolls = parser.CreatePartyMessages()
@@ -36,10 +37,11 @@ func readText() {
 }
 
 func printRolls(name types.PlayerName, playerRolls parser.PartyMessages) {
+	totalRolls := playerRolls.GetMessageCount(name)
 	rollAvg := playerRolls.GetDiceAverage(name)
 	modAvg := playerRolls.GetModAverage(name)
 	successAvg := playerRolls.GetSuccessAverage(name)
 	failureAvg := playerRolls.GetFailureAverage(name)
 
-	fmt.Printf("%s rolled an average die roll of %f, with an average total toll of %f. Their average success rate was %f, and their failure rate was %f\n\n", name.String(), rollAvg, modAvg, successAvg, failureAvg)
+	fmt.Printf("%s rolled a total of %d rolls, with an average die roll of %f, with an average total roll of %f. Their average success rate was %f, and their failure rate was %f\n\n", name.String(), totalRolls, rollAvg, modAvg, successAvg, failureAvg)
 }

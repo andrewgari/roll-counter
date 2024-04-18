@@ -2,12 +2,14 @@ package parser
 
 import (
 	"errors"
+	"fmt"
 	"github.com/andrewgari/roll-counter/internal/types"
 	"math"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const headerRegex = `\[(\d{1,2}\/\d{1,2}\/\d{2,4}), ((0[1-9]|1[0-2]):([0-5][0-9]):([0-5][0-9]) (AM|PM))\] (.*)\n`
@@ -29,6 +31,20 @@ func ReadFile(system types.GameSystem, fileName string) []types.RollMessage {
 		if err != nil {
 			continue
 		}
+
+		isGameNight, err := isMondayOrFriday(chatMessage.Date)
+		if !isGameNight || err != nil {
+			if err != nil {
+				fmt.Println("Something went wrong", err.Error())
+			}
+			continue
+		}
+
+		isGameTime, err := isBetween8PMand1AM(chatMessage.Time)
+		if !isGameTime || err != nil {
+			//continue
+		}
+
 		chatMessage.System = system
 		rollMessage, err := parseRollMessage(&chatMessage)
 		if err != nil {
@@ -48,7 +64,7 @@ func parseMessage(message string) (types.ChatMessage, error) {
 	}
 
 	var date = matches[1]
-	var time = matches[2]
+	var timestamp = matches[2]
 	var name = types.GetPlayerName(matches[7])
 
 	var msg = types.ChatMessage{
@@ -56,7 +72,7 @@ func parseMessage(message string) (types.ChatMessage, error) {
 		System:     types.DND_5e,
 		Message:    message,
 		Date:       date,
-		Time:       time,
+		Time:       timestamp,
 	}
 	return msg, nil
 }
@@ -134,10 +150,10 @@ func parseRollResult(dieRoll float64, message string) types.RollResult {
 	matches := regex.FindStringSubmatch(message)
 
 	if matches == nil {
-		if dieRoll > 10 {
+		if dieRoll >= 17 {
 			return types.SUCCESS
 		}
-		if dieRoll <= 10 {
+		if dieRoll <= 5 {
 			return types.FAILURE
 		}
 		return types.UNKNOWN
@@ -165,4 +181,57 @@ func parseRollType(message string) types.RollType {
 	default:
 		return types.NORMAL
 	}
+}
+
+func isMondayOrFriday(date string) (bool, error) {
+	// Split the date string into month, day, and year
+	dateParts := strings.Split(date, "/")
+	if len(dateParts) != 3 {
+		return false, fmt.Errorf("invalid date format")
+	}
+
+	// Add zero padding to the month and day if necessary
+	month, err := strconv.Atoi(dateParts[0])
+	if err != nil {
+		return false, err
+	}
+	day, err := strconv.Atoi(dateParts[1])
+	if err != nil {
+		return false, err
+	}
+	year := dateParts[2]
+
+	// Reconstruct the date string with zero padding
+	date = fmt.Sprintf("%02d/%02d/%s", month, day, year)
+
+	t, err := time.Parse("01/02/2006", date)
+	if err != nil {
+		return false, err
+	}
+
+	dayOfWeek := t.Weekday()
+	return dayOfWeek == time.Monday || dayOfWeek == time.Friday, nil
+}
+
+func isBetween8PMand1AM(timeStr string) (bool, error) {
+	// Parse the time string
+	t, err := time.Parse("3:04:05 PM", timeStr)
+	if err != nil {
+		return false, err
+	}
+
+	// Load the EST time zone
+	location, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		return false, err
+	}
+
+	// Convert the time to EST
+	t = t.In(location)
+
+	// Get the hour
+	hour := t.Hour()
+
+	// Check if the hour is between 8 PM and 1 AM
+	return hour >= 20 || hour < 1, nil
 }

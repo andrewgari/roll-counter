@@ -49,31 +49,31 @@ func GetPlayerName(name string) PlayerName {
 }
 
 func IsKintos(name string) bool {
-	regex := regexp.MustCompile("(?i)kintos")
+	regex := regexp.MustCompile(`(?i)\bkintos\b`)
 	return regex.MatchString(name)
 }
 
 func IsFun(name string) bool {
-	regex := regexp.MustCompile("(?i)fun")
+	regex := regexp.MustCompile(`(?i)\bfun/??\b`)
 	return regex.MatchString(name)
 }
 
 func IsAine(name string) bool {
-	regex := regexp.MustCompile("(?i)aine")
+	regex := regexp.MustCompile(`(?i)\baine\b`)
 	return regex.MatchString(name)
 }
 
 func IsTree(name string) bool {
-	regex := regexp.MustCompile("(?i)(tree)|(chett)")
+	regex := regexp.MustCompile(`(?i)\btree|chett\b`)
 	return regex.MatchString(name)
 }
 
 func IsRo(name string) bool {
-	regex := regexp.MustCompile("(?i)rowan")
+	regex := regexp.MustCompile(`(?i)\browan\b`)
 	return regex.MatchString(name)
 }
 
 func IsZed(name string) bool {
-	regex := regexp.MustCompile("(?i)zed")
+	regex := regexp.MustCompile(`(?i)\bzed\b`)
 	return regex.MatchString(name)
 }
