@@ -16,11 +16,11 @@ const (
 
 func (pn PlayerName) String() string {
 	return []string{
-		"Sir Kintos Vanhausen Krinleback the 3rd, Holy Knight of the Albion Kingdom under the Golden Sun",
+		"Sir Kintos",
 		"Aine Vicis",
-		"Chett Slitherbottom",
+		"Tree",
 		"Fun!",
-		"Rowan 'Ro' Goldsnatch",
+		"Roawn",
 		"Zed",
 		"The GM",
 	}[pn]

@@ -12,10 +12,9 @@ func main() {
 
 func readText() {
 
-	dnd5eRolls := parser.ReadFile(types.DND_5e, "assets/pathfinder.log")
-	//pathfinderRolls := parser.ReadFile(types.PF2e, "assets/pathfinder.log")
-	//var chatMessages = append(dnd5eRolls, pathfinderRolls...)
-	var chatMessages = dnd5eRolls
+	dnd5eRolls := parser.ReadFile(types.DND_5e, "assets/dnd5e.log")
+	pathfinderRolls := parser.ReadFile(types.PF2e, "assets/pathfinder.log")
+	var chatMessages = append(dnd5eRolls, pathfinderRolls...)
 
 	var total = 0
 	var playerRolls = parser.CreatePartyMessages()

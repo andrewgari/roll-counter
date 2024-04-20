@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-const headerRegex = `\[(\d{1,2}\/\d{1,2}\/\d{2,4}), ((0[1-9]|1[0-2]):([0-5][0-9]):([0-5][0-9]) (AM|PM))\] (.*)\n`
+const headerRegex = `\[(\d{1,2}\/\d{1,2}\/\d{2,4}), (\d{1,2}:\d{1,2}:\d{1,2} [A,P]M)\] (.*)+`
 const verboseRoll5e = `[1,2]d20(kh|kl)? \d{1,2} \d{1,2} (\d{1,2})\n(\d{1,2})`
 const terseRoll5e = `[1,2]d20(kh|kl)?.*= (\d{1,2}).*= (\d{1,2})`
 
@@ -65,7 +65,7 @@ func parseMessage(message string) (types.ChatMessage, error) {
 
 	var date = matches[1]
 	var timestamp = matches[2]
-	var name = types.GetPlayerName(matches[7])
+	var name = types.GetPlayerName(matches[3])
 
 	var msg = types.ChatMessage{
 		PlayerName: name,
